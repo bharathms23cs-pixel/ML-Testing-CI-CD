@@ -2,29 +2,34 @@ import streamlit as st
 import joblib
 import numpy as np
 
-st.set_page_config(page_title="ML Testing CI/CD")
+# Load trained model
+model = joblib.load("model/model.pkl")
 
-st.title("🏠 House Price Predictor")
-st.write("Web Based GUI - ML Model Testing CI/CD")
+st.title("🏠 House Price Prediction")
+st.write("Enter the house details below:")
 
-# Load model
-@st.cache_resource
-def load_model():
-    return joblib.load("model.pkl")
+MedInc = st.number_input("Median Income", min_value=0.0, value=3.0)
+HouseAge = st.number_input("House Age", min_value=0.0, value=20.0)
+AveRooms = st.number_input("Average Rooms", min_value=0.0, value=5.0)
+AveBedrms = st.number_input("Average Bedrooms", min_value=0.0, value=1.0)
+Population = st.number_input("Population", min_value=0.0, value=1000.0)
+AveOccup = st.number_input("Average Occupancy", min_value=0.0, value=3.0)
+Latitude = st.number_input("Latitude", value=35.0)
+Longitude = st.number_input("Longitude", value=-120.0)
 
-model = load_model()
-st.success("✅ Model Loaded - model.pkl")
+if st.button("Predict House Price"):
 
-# Inputs
-sqft = st.number_input("Enter Square Feet", min_value=500, max_value=5000, value=1000)
-bhk = st.number_input("Enter BHK", min_value=1, max_value=5, value=2)
+    input_data = np.array([[
+        MedInc,
+        HouseAge,
+        AveRooms,
+        AveBedrms,
+        Population,
+        AveOccup,
+        Latitude,
+        Longitude
+    ]])
 
-if st.button("Predict Price"):
-    # Predict - change [[sqft, bhk]] as per your model features
-    prediction = model.predict([[sqft, bhk]])
-    st.balloons()
-    st.subheader(f"Predicted Price: ₹ {prediction[0]:,.2f}")
-    st.write("Code Output Shown in GUI - Web Based Model")
+    prediction = model.predict(input_data)
 
-st.divider()
-st.write("GitHub Actions: 13 workflow runs ✅ Passed")
+    st.success(f"Predicted House Price: ${prediction[0] * 100000:,.2f}")
